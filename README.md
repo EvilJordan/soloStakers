@@ -19,12 +19,12 @@ ELRPCPORT=8552 # execution layer RPC port
 
 `npm init` - this will install required dependencies
 
-`node deposits.js` - retreive Beacon Chain deposits using Ethersan's API (1400x faster than a local RPC node) and import into SQLite table. Should take around 10 minutes. If execution stalls or fails, run again. Built-in de-duping removes duplicate entries due to overlapping start blocks. Optionally, run: `node deposits.js --reset` to wipe the database and start from the first environmentally set `STARTBLOCK`.
+`node deposits.js` - retreive Beacon Chain deposits up to run-time using Etherscan's API (1400x faster than a local RPC node) and import into SQLite table `deposits`. Should take around 10 minutes. If execution stalls or fails, run again. Built-in de-duping removes duplicate entries due to overlapping start blocks on re-run. Optionally, run: `node deposits.js --reset` to wipe the database and start from the first environmentally set `STARTBLOCK`.
 
-alternatively: `node deposits-RPC.js` - retrieve Beacon Chain deposits by scanning an RPC node block-by-block and extracting transactions to the Beacon Chain contract (takes about 10 days using a local RPC node... trust, but verify!) and import into SQLite table
+alternatively: `node deposits-RPC.js` - retrieve Beacon Chain deposits up to run-time by scanning an RPC node block-by-block and extracting deposits to the Beacon Chain contract (takes about 10 days using a local RPC node... _trust, but verify!_) and import into SQLite table `deposits`.
 
 make sure `validators.sh` is set to executable (`chmod +x validators.sh`)
 
-`./validators.sh` - retrieve a JSON list of validators from the consensus layer, parse out the requisite information, format as CSV, import into SQLite table
+`./validators.sh` - retrieve a JSON list of validators from the consensus layer, parse out the requisite information, format as CSV, import into SQLite table `validators`.
 
 This will result in a near-gigabyte `soloStakers.db` SQLite database with two tables: `validators` and `deposits`. 
