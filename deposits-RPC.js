@@ -12,8 +12,9 @@ const ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{
 const INTERFACE = new ethers.Interface(ABI);
 
 // set up the database
-let sql = `
--- DROP TABLE IF EXISTS deposits;
+let sql = '';
+if (process.argv[2] === '--reset') { sql = 'DROP TABLE IF EXISTS deposits;'; }
+sql += `
 CREATE TABLE IF NOT EXISTS deposits (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	timestamp INTEGER NOT NULL,
