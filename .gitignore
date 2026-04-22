@@ -1,0 +1,4 @@
+.env
+soloStakers.db
+queries.js
+node_modules/
