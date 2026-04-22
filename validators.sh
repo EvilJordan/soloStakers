@@ -1,6 +1,6 @@
 source .env
 
-echo "Retrieving latest validator list from local RPC node..."
+echo "Retrieving latest validator list from RPC node..."
 curl $CLRPCADDRESS:$CLRPCPORT/eth/v1/beacon/states/head/validators > validators.json
 
 echo "Extracting relevant validator data into CSV..."
