@@ -9,9 +9,9 @@ ETHERSCANAPIKEY=YOUR_ETHERSCAN_API_KEY # optional if not using a local RPC node
 DATABASE=soloStakers.db # SQLite DB filename
 STARTBLOCK=11184523 # first mainnet block containing a deposit
 VALIDATORS=validators.json # local filename to store current validator set temporarily
-CLRPCADDRESS=http://192.168.1.129 # consensus layer RPC address
+CLRPCADDRESS=http://localhost # consensus layer RPC address
 CLRPCPORT=5051 # consensus layer RPC port
-ELRPCADDRESS=http://192.168.1.129 # execution layer RPC address
+ELRPCADDRESS=http://localhost # execution layer RPC address
 ELRPCPORT=8552 # execution layer RPC port
 ```
 ---
