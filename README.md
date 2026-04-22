@@ -1,6 +1,6 @@
 # Solo Staker List
 
-Node + SQLite + Bash
+Node, Bash, jq, sqlite3
 
 ## .env Setup -- *REQUIRED*
 ```bash
