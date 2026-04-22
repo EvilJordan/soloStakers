@@ -31,4 +31,4 @@ This will result in a near-gigabyte `soloStakers.db` SQLite database with two ta
 
 ---
 
-[^1] Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all data, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.
+[^1]: Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all data, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.
