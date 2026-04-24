@@ -30,4 +30,6 @@ This will result in a near-gigabyte `soloStakers.db` SQLite database with two ta
 
 4. `./index.sh` - create indexes on `soloStakers.db` tables.
 
+5. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`
+
 [^1]: Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all deposits, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.

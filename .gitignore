@@ -1,4 +1,4 @@
 .env
 soloStakers.db
-deposits.txt
+deposits.json
 node_modules/

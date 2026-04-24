@@ -16,11 +16,11 @@ progressBar = new cliProgress.SingleBar({ format: 'Retrieving info: [{bar}] {per
 progressBar.start(depositAddresses.length, 0);
 
 try {
-	fs.unlinkSync('./deposits.txt');
+	fs.unlinkSync('./deposits.json');
 } catch(e) {
 	// continue
 }
-const stream = fs.createWriteStream('./deposits.txt');
+const stream = fs.createWriteStream('./deposits.json');
 stream.write('{\n');
 let comma = ','
 const withdrawal_addressRegex = /0x01|0x02/;
