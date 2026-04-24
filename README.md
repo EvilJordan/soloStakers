@@ -7,7 +7,6 @@ Node, Bash, jq, sqlite3
 ADDRESS=0x00000000219ab540356cbb839cbe05303d7705fa # Beacon Chain deposit contract
 ETHERSCANAPIKEY=YOUR_ETHERSCAN_API_KEY # optional if not using a local RPC node
 DATABASE=soloStakers.db # local SQLite DB filename
-VALIDATORS=validators.json # local filename to store current validator set temporarily
 STARTBLOCK=11184523 # first mainnet block containing a deposit
 CLRPCADDRESS=http://localhost # consensus layer RPC address
 CLRPCPORT=5051 # consensus layer RPC port
