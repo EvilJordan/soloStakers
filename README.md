@@ -28,6 +28,8 @@ make sure `validators.sh` is set to executable (`chmod +x validators.sh`)
 
 This will result in a near-gigabyte `soloStakers.db` SQLite database with two tables: `validators` and `deposits`. 
 
+make sure `index.sh` is set to executable (`chmod +x index.sh`)
+
 4. `./index.sh` - create indexes on `soloStakers.db` tables.
 
 5. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`
