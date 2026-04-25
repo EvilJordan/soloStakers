@@ -32,7 +32,7 @@ DB.exec(sql, (err) => {
 
 let LASTBLOCK = DB.prepare('SELECT MAX(block) AS LASTBLOCK FROM deposits').pluck().all();
 if (!LASTBLOCK || LASTBLOCK[0] === null || LASTBLOCK[0] === 0) {
-	STARTBLOCK = process.env.STARTBLOCK;
+	STARTBLOCK = process.env.STARTDEPOSITBLOCK;
 } else {
 	STARTBLOCK = LASTBLOCK[0];
 }

@@ -7,7 +7,9 @@ Node, Bash, jq, sqlite3
 ADDRESS=0x00000000219ab540356cbb839cbe05303d7705fa # Beacon Chain deposit contract
 ETHERSCANAPIKEY=YOUR_ETHERSCAN_API_KEY # optional if not using a local RPC node
 DATABASE=soloStakers.db # local SQLite DB filename
-STARTBLOCK=11184523 # first mainnet block containing a deposit
+STARTDEPOSITBLOCK=11184523 # first mainnet block containing a deposit
+STARTCONSENSUSBLOCK=15537394 # first mainnet block post-merge
+STARTCONSENSUSSLOT=4700013 # first mainnet slot post-merge
 CLRPCADDRESS=http://localhost # consensus layer RPC address
 CLRPCPORT=5051 # consensus layer RPC port
 ELRPCADDRESS=http://localhost # execution layer RPC address
@@ -18,7 +20,7 @@ ELRPCPORT=8552 # execution layer RPC port
 
 1. `npm init` - this will install required dependencies
 
-2. `node deposits.js` - retreive Beacon Chain deposits up to run-time using Etherscan's API (1400x faster[^1] than a local RPC node) and import into SQLite table `deposits`. Should take around 10 minutes. If execution stalls or fails, run again. Built-in de-duping removes duplicate entries due to overlapping start blocks on re-run. Optionally, run: `node deposits.js --reset` to wipe the database and start from the first environmentally set `STARTBLOCK`.
+2. `node deposits.js` - retreive Beacon Chain deposits up to run-time using Etherscan's API (1400x faster[^1] than a local RPC node) and import into SQLite table `deposits`. Should take around 10 minutes. If execution stalls or fails, run again. Built-in de-duping removes duplicate entries due to overlapping start blocks on re-run. Optionally, run: `node deposits.js --reset` to wipe the database and start from the first environmentally set `STARTDEPOSITBLOCK`.
 
 alternatively: `node deposits-RPC.js` - retrieve Beacon Chain deposits up to run-time by scanning an RPC node block-by-block and extracting deposits to the Beacon Chain contract (takes about 10 days using a local RPC node... _trust, but verify!_) and import into SQLite table `deposits`.
 

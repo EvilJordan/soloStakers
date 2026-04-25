@@ -46,7 +46,7 @@ const INSERTDEPOSITDATA = DB.transaction(depositDataArray => {
 let startBlock = 0;
 let lastBlock = DB.prepare('SELECT MAX(block) AS lastBlock FROM deposits').pluck().all();
 if (!lastBlock || lastBlock[0] === null || lastBlock[0] === 0) {
-	startBlock = process.env.STARTBLOCK;
+	startBlock = process.env.STARTDEPOSITBLOCK;
 } else {
 	startBlock = lastBlock[0];
 }
