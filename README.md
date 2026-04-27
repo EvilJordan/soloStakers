@@ -38,6 +38,6 @@ This will add about 500megs worth of indexes to the database, but enables extrem
 
 5. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`
 
-6. There does not exist a publicly available or efficient method to pull graffiti per slot from any block explorer or third-party. Therefore, we have created a custom fork of Teku that writes out all requisite slot data to a JSON file during sync, backfill, and regular operation. Additionally, a new RPC endpoint (`/teku/v1/beacon/proposer_graffiti/{block_id}`) allows for querying of the same data to fill gaps where necessary.
+6. There does not exist a publicly available or efficient method to pull graffiti per slot from any block explorer or third-party. Therefore, we have created a custom fork of Teku that writes out all requisite slot data to a ~~JSON~~ CSV file during sync, backfill, and regular operation. Additionally, a new RPC endpoint (`/teku/v1/beacon/proposer_graffiti/{block_id}`) allows for querying of the same data to fill gaps where necessary.
 
 [^1]: Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all deposits, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.
