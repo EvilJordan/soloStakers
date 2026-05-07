@@ -40,7 +40,7 @@ This will add about 500megs worth of indexes to the database, but enables extrem
 
 6. There does not exist a publicly available or efficient method to pull graffiti per slot from any block explorer or third-party. Therefore, we have created a custom fork of Teku that writes out all requisite slot data to a CSV file during sync, backfill, and regular operation. Additionally, a new RPC endpoint (`/teku/v1/beacon/proposer_graffiti/{block_id}`) allows for querying of the same data to fill gaps where necessary.[^2]
 
-The output of this process is available in this repo as `slotGraffiti.log.gz` as a courtesy[^2]. Lines are ordered by slot number, ascending. `git-lfs` necessary for retrieval.
+The output of this process is available in this repo as `slotGraffiti.log.gz` as a courtesy[^3]. Lines are ordered by slot number, ascending. `git-lfs` necessary for retrieval.
 
 7. `./importGraffiti.sh` - import graffiti CSV into database
 
