@@ -1,4 +1,9 @@
 .env
 soloStakers.*
+monitor.*
 deposits.json
+gParse.js
+graffiti.js
+retrieveGraffiti.sh
+slotGraffiti.log
 node_modules/
