@@ -48,4 +48,4 @@ The output of this process is available in this repo as `slotGraffiti.log.gz` as
 
 [^2]: New RPC endpoint currently only available in our custom fork.
 
-[^3]: The frequency of update is arbitrary, based on the latest run/analysis of this repo. This file is provdided as a starting point for your own analysis, saving many days worth of data retrieval.
+[^3]: The frequency of update is arbitrary, based on the latest run/analysis of this repo. This file is provided as a starting point for your own analysis, saving many days worth of data retrieval.
