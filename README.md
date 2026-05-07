@@ -30,21 +30,21 @@ make sure `validators.sh` is set to executable (`chmod +x validators.sh`)
 
 This will result in a near-gigabyte `soloStakers.db` SQLite database with two tables: `validators` and `deposits`. 
 
-make sure `index.sh` is set to executable (`chmod +x index.sh`)
-
-4. `./index.sh` - create indexes on `soloStakers.db` tables.
-
-This will add about 500megs worth of indexes to the database, but enables extremely fast queries.
-
-5. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`
-
-6. There does not exist a publicly available or efficient method to pull graffiti per slot from any block explorer or third-party. Therefore, we have created a custom fork of Teku that writes out all requisite slot data to a CSV file during sync, backfill, and regular operation. Additionally, a new RPC endpoint (`/teku/v1/beacon/proposer_graffiti/{block_id}`) allows for querying of the same data to fill gaps where necessary.[^2]
+4. There does not exist a publicly available or efficient method to pull graffiti per slot from any block explorer or third-party. Therefore, we have created a custom fork of Teku that writes out all requisite slot data to a CSV file during sync, backfill, and regular operation. Additionally, a new RPC endpoint (`/teku/v1/beacon/proposer_graffiti/{block_id}`) allows for querying of the same data to fill gaps where necessary.[^2]
 
 The output of this process is available in this repo as `slotGraffiti.log.gz` as a courtesy[^3]. Lines are ordered by slot number, ascending. `git-lfs` necessary for retrieval. Decompress the provided archive with: `gzip -d slotGraffiti.log.gz`.
 
 make sure `importGraffiti.sh` is set to executable (`chmod +x importGraffiti.sh`)
 
-7. `./importGraffiti.sh` - import graffiti CSV into database
+5. `./importGraffiti.sh` - import graffiti CSV into database
+
+make sure `index.sh` is set to executable (`chmod +x index.sh`)
+
+6. `./index.sh` - create indexes on `soloStakers.db` tables.
+
+This will add about 500megs worth of indexes to the database, but enables extremely fast queries.
+
+7. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`
 
 [^1]: Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all deposits, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.
 
