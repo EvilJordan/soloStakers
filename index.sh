@@ -3,5 +3,6 @@ sqlite3 $DATABASE "CREATE INDEX IF NOT EXISTS withdrawal_credentials_index ON va
 CREATE INDEX IF NOT EXISTS pubkey_index ON validators (pubkey); \
 CREATE INDEX IF NOT EXISTS withdrawal_credentials_deposits_index ON deposits (withdrawal_credentials); \
 CREATE INDEX IF NOT EXISTS deposit_address_deposits_index ON deposits (deposit_address); \
-CREATE INDEX IF NOT EXISTS pubkey_deposits_index ON deposits (pubkey);" ".quit"
+CREATE INDEX IF NOT EXISTS pubkey_deposits_index ON deposits (pubkey); \
+CREATE INDEX IF NOT EXISTS vindex_index ON graffiti (vindex);" ".quit"
 echo "Done!"
