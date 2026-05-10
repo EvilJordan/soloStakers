@@ -56,7 +56,6 @@ for (let i = 0; i < depositAddresses.length; i++) {
 		}
 	}
 	// if our status field contains anything other than active_ongoing, we need to create a new object to determine which indexes, pubkeys, and withdrawal_credentials are not part of the active set?
-	// pull in numTXs from depositTransactions
 	if (i == depositAddresses.length - 1) { comma = ''; }
 	stream.write('"' + depositAddress + '": ' + JSON.stringify(depositAddressData, null, '\t') + comma + '\n');
 	progressBar.update(i);
