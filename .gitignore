@@ -2,6 +2,7 @@
 soloStakers.*
 monitor.*
 deposits.json
+extract.js
 gParse.js
 graffiti.js
 retrieveGraffiti.sh
