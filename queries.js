@@ -72,6 +72,7 @@ for (let i = 0; i < depositAddresses.length; i++) {
 						const regex = new RegExp(graffitiExclusion, "gi");
 						if (decodedGraffiti.toLowerCase().match(regex)) {
 							depositAddressData.isSolo = false; // graffiti matches our known exclusion list, not a solo staker
+							depositAddressData.matchedGraffiti = graffitiExclusion;
 							return
 						}
 					});
