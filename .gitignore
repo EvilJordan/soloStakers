@@ -9,4 +9,5 @@ graffiti.js
 inclusions.json
 retrieveGraffiti.sh
 slotGraffiti.log
+stats.js
 node_modules/
