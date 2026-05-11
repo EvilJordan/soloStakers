@@ -2,9 +2,11 @@
 soloStakers.*
 monitor.*
 deposits.json
+exclusions.json
 extract.js
 gParse.js
 graffiti.js
+inclusions.json
 retrieveGraffiti.sh
 slotGraffiti.log
 node_modules/
