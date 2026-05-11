@@ -20,6 +20,11 @@ try {
 } catch(e) {
 	// continue
 }
+
+const graffitiExclusions = fs.readFileSync('./graffitiExclusions.txt', 'utf8').split(/\r?\n/);
+const inclusions = JSON.parse(fs.readFileSync('./inclusions.json', 'utf8'));
+const exclusions = JSON.parse(fs.readFileSync('./exclusions.json', 'utf8'));
+
 const stream = fs.createWriteStream('./deposits.json');
 stream.write('{\n');
 let comma = ','
@@ -28,7 +33,7 @@ const withdrawal_addressRegex = /0x01|0x02/;
 // pull all withdrawal_credentials and pubkeys for a given deposit address and creates a lookup list with deposit_address as the key
 for (let i = 0; i < depositAddresses.length; i++) {
 	const depositAddress = depositAddresses[i].depositAddress;
-	const depositAddressData = { numTXs: depositAddresses[i].numTXs, withdrawalAddresses: [], pubkeys: [], vindex: [], graffiti: [] };
+	const depositAddressData = { isSolo: true, numTXs: depositAddresses[i].numTXs, withdrawalAddresses: [], pubkeys: [], vindex: [], graffiti: [] };
 	let query = DB.prepare("SELECT GROUP_CONCAT(DISTINCT(withdrawal_credentials)) AS withdrawal_address FROM deposits WHERE deposit_address = '" + depositAddress + "'").all();
 	if (query[0].withdrawal_address?.length > 0) {
 		depositAddressData.withdrawalAddresses = query[0].withdrawal_address.split(",");
@@ -53,9 +58,36 @@ for (let i = 0; i < depositAddresses.length; i++) {
 		query = DB.prepare("SELECT GROUP_CONCAT(DISTINCT(graffiti)) AS graffiti FROM graffiti WHERE vindex IN (" + query[0].vindices + ")").all();
 		if (query[0].graffiti?.length > 0) {
 			depositAddressData.graffiti = query[0].graffiti.split(",");
+			for (let j = 0; j < depositAddressData.graffiti.length; j++) {
+				const graffiti = depositAddressData.graffiti[j];
+				if (!depositAddressData.isSolo) { continue; }
+				let decodedGraffiti;
+				try {
+					decodedGraffiti = ethers.toUtf8String(graffiti).toLowerCase(); // decode graffiti and compare against our graffiti exclusions
+				} catch (e) {
+					continue; // unable to decode the graffiti, so we're just gonna let it pass for now
+				}
+				if (decodedGraffiti) {
+					graffitiExclusions.forEach(graffitiExclusion => {
+						const regex = new RegExp(graffitiExclusion, "gi");
+						if (decodedGraffiti.toLowerCase().match(regex)) {
+							depositAddressData.isSolo = false; // graffiti matches our known exclusion list, not a solo staker
+							return
+						}
+					});
+				}
+			}
 		}
 	}
-	// if our status field contains anything other than active_ongoing, we need to create a new object to determine which indexes, pubkeys, and withdrawal_credentials are not part of the active set?
+	// if our status field contains anything other than active_ongoing, do we need to create a new object to determine which indexes, pubkeys, and withdrawal_credentials are not part of the active set?
+	// if numTXs > 10,000 or staked balance is > 2560, not a solo staker
+	if (depositAddressData.numTXs >= 10000) { depositAddressData.isSolo = false; }
+	if (depositAddressData.balance && ( parseInt(ethers.formatUnits(depositAddressData.balance, "gwei"), 10) > 2560) ) { depositAddressData.isSolo = false; }
+
+	// explicit inclusions or exclusions
+	if (inclusions.includes(depositAddress)) { depositAddressData.isSolo = true; }
+	if (exclusions.includes(depositAddress)) { depositAddressData.isSolo = false; }
+
 	if (i == depositAddresses.length - 1) { comma = ''; }
 	stream.write('"' + depositAddress + '": ' + JSON.stringify(depositAddressData, null, '\t') + comma + '\n');
 	progressBar.update(i);
