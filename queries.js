@@ -97,15 +97,3 @@ stream.write('}\n');
 stream.end();
 progressBar.stop();
 DB.close();
-
-/*
-statuses:
-active_ongoing
-withdrawal_possible
-withdrawal_done
-active_exiting
-exited_slashed
-pending_initialized
-exited_unslashed
-pending_queued
-*/
