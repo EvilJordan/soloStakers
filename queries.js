@@ -80,10 +80,12 @@ for (let i = 0; i < depositAddresses.length; i++) {
 			}
 		}
 	}
-	// if our status field contains anything other than active_ongoing, do we need to create a new object to determine which indexes, pubkeys, and withdrawal_credentials are not part of the active set?
-	// if numTXs > 10,000 or staked balance is > 2560, not a solo staker
+	// if numTXs > 10,000, not a solo staker
 	if (depositAddressData.numTXs >= 10000) { depositAddressData.isSolo = false; }
+	// if effective staked balance is > 2560, not a solo staker
 	if (depositAddressData.balance && ( parseInt(ethers.formatUnits(depositAddressData.balance, "gwei"), 10) > 2560) ) { depositAddressData.isSolo = false; }
+	// if number of 0 ETH outgoing transactions > 100, not a solo staker
+	// if number of ETH outgoing transactions > 9,000, not a solo staker
 
 	// explicit inclusions or exclusions
 	if (inclusions.includes(depositAddress)) { depositAddressData.isSolo = true; }
