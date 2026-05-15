@@ -21,7 +21,7 @@ DB.exec(sql, (err) => {
 });
 
 // prepare depositTransactions data structure and DB multi-call
-const DEPOSITDATA = { deposit_address: 1, numTXs: 1 };
+const DEPOSITDATA = { deposit_address: 0, numTXs: 0 };
 const COLUMNS = Object.keys(DEPOSITDATA).join(", ");
 const PLACEHOLDERS = Object.keys(DEPOSITDATA).fill('?').join(", ");
 const INSERT = DB.prepare('INSERT INTO depositTransactions (' + COLUMNS + ') VALUES (' + PLACEHOLDERS + ')');
@@ -33,8 +33,7 @@ const INSERTDEPOSITDATA = DB.transaction(depositDataArray => {
 
 const PROVIDER = new ethers.JsonRpcProvider(process.env.ELRPCADDRESS + ':' + process.env.ELRPCPORT);
 
-const depositAddresses = DB.prepare("SELECT DISTINCT(deposit_address) AS depositAddress FROM deposits").all();
-// const depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress FROM deposits WHERE deposits.deposit_address NOT IN (SELECT DISTINCT(depositTransactions.deposit_address) FROM depositTransactions)").all();
+const depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress FROM deposits WHERE deposits.deposit_address NOT IN (SELECT DISTINCT(depositTransactions.deposit_address) FROM depositTransactions)").all();
 console.log('Unique deposit addresses:', depositAddresses.length);
 let progressBar;
 progressBar = new cliProgress.SingleBar({ format: 'Retrieving info: [{bar}] {percentage}% || {value}/{total} deposit addresses || ETA: {eta}s' }, cliProgress.Presets.rect);
