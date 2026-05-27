@@ -44,7 +44,7 @@ make sure `index.sh` is set to executable (`chmod +x index.sh`)
 
 This will add about 500megs worth of indexes to the database, but enables extremely fast queries.
 
-7. `node numDeposits.js` builds a new table, `depositTransactions` for storing some analytical data. This script uses the EL RPC node configured in `.env` to pull the number of lifetime transactions for a given deposit address and store in our database.
+7. `node numDeposits.js` builds a new table, `depositTransactions` for storing some analytical data. This script uses the EL RPC node configured in `.env` to pull the number of lifetime transactions for a given deposit address and store in our database. Optionally, run `node numDeposits.js --reset` to wipe the data and rebuild. This process takes about an hour using a local RPC node.
 
 8. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`
 
