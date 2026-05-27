@@ -4,6 +4,7 @@ dotenv.config({ path: './.env', quiet: true });
 import { ethers } from "ethers";
 import Database from 'better-sqlite3';
 import cliProgress from 'cli-progress';
+import fs from 'fs';
 const DB = new Database('soloStakers.db');
 DB.pragma('journal_mode = WAL');
 
@@ -33,15 +34,22 @@ const INSERTDEPOSITDATA = DB.transaction(depositDataArray => {
 
 const PROVIDER = new ethers.JsonRpcProvider(process.env.ELRPCADDRESS + ':' + process.env.ELRPCPORT);
 
-const depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress FROM deposits WHERE deposits.deposit_address NOT IN (SELECT DISTINCT(depositTransactions.deposit_address) FROM depositTransactions)").all();
-console.log('Unique deposit addresses:', depositAddresses.length);
+const depositData = JSON.parse(fs.readFileSync('./deposits.json', 'utf8'));
+const depositAddressesOriginal = Object.keys(depositData);
+let depositAddresses = [];
+for (let i = 0; i < depositAddressesOriginal.length; i++) {
+	const thisDepositAddress = depositData[depositAddressesOriginal[i]];
+	if (thisDepositAddress.inactive) { continue; }
+	depositAddresses.push(depositAddressesOriginal[i]);
+}
+console.log('Unique active deposit addresses:', depositAddresses.length);
 let progressBar;
 progressBar = new cliProgress.SingleBar({ format: 'Retrieving info: [{bar}] {percentage}% || {value}/{total} deposit addresses || ETA: {eta}s' }, cliProgress.Presets.rect);
 progressBar.start(depositAddresses.length, 0);
 
 for (let i = 0; i < depositAddresses.length; i++) {
-	const numDeposits = await PROVIDER.getTransactionCount(depositAddresses[i].depositAddress);
-	INSERTDEPOSITDATA([{ depositAddress: depositAddresses[i].depositAddress, numDeposits: numDeposits }]);
+	const numDeposits = await PROVIDER.getTransactionCount(depositAddresses[i]);
+	INSERTDEPOSITDATA([{ depositAddress: depositAddresses[i], numDeposits: numDeposits }]);
 	progressBar.increment();
 }
 
