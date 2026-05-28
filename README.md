@@ -50,6 +50,8 @@ This will add about 500megs worth of indexes to the database, but enables extrem
 
 9. `node queries.js` (run \#2) - build a patched JSON lookup object (with `deposit_address` as the primary key) with new transaction-related data, and write to disk as `deposits.json`
 
+10. `node transactions.js` - retrieve transaction data from Etherscan to populate the `depositTransactions` table with first transaction date, amount of ETH sent, and number of non-ETH transactions. Unfortunately due to Etherscan nonsense, this takes days to run.
+
 [^1]: Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all deposits, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.
 
 [^2]: New RPC endpoint currently only available in our custom fork.
