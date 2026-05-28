@@ -111,7 +111,7 @@ for (let i = 0; i < depositAddresses.length; i++) {
 		if (depositAddressData.numTXs >= 10000) { depositAddressData.isSolo = false; }
 
 		// if number of 0 ETH outgoing transactions > 100, not a solo staker
-		// if number of ETH outgoing transactions > 9,000, not a solo staker
+		// if amount of ETH in outgoing transactions > 9,000, not a solo staker
 	}
 
 	depositData[depositAddress] = depositAddressData;
