@@ -41,52 +41,58 @@ const getTXs = async (page, action, address) => {
 	if (calls > RATELIMIT - 1) { wait(1); calls = 0; }
 	let params = '&startBlock=' + startBlock + '&endblock=' + ENDBLOCK;
 	const URL = 'https://api.etherscan.io/v2/api?chainid=1&module=account&action=' + action + '&address=' + address + params + '&page=' + page + '&offset=1000&sort=asc&apikey=' + ETHERSCANAPIKEY;
-	const request = await fetch(URL, {
-		method: 'GET'
-	});
-	if (request.status !== 200) {
-		console.log(request);
-		return false;
-	}
-	const response = await request.json();
-	if (response.message && response.message === 'OK') {
-		if (response.status !== '1') { // we're done
+	let request;
+	try {
+		request = await fetch(URL, {
+			method: 'GET'
+		});
+		if (request.status !== 200) {
+			console.log(request);
+			return false;
+		}
+		const response = await request.json();
+		if (response.message && response.message === 'OK') {
+			if (response.status !== '1') { // we're done
+				return true;
+			} else { // process transactions
+				for (let i = 0; i < response.result.length; i++) { // process this batch of transactions
+					if (depositTXData[address].numNonETHTXs > 100 || ethers.toBigInt(depositTXData[address].txETHOut) > ethers.parseEther('9000')) { depositTXData[address].isSolo = false; return true; }
+					const tx = response.result[i];
+					// if firstTXTimestamp is 0, change it to tx.timeStamp
+					if (tx.from.toLowerCase() !== address.toLowerCase()) { continue; }
+					if (depositTXData[address].firstTXTimestamp == 0) {
+						depositTXData[address].firstTXTimestamp = tx.timeStamp;
+					}
+					if (tx.value > 0) { // collect tx where FROM is deposit address and tx.value > 0 and add value to txETHOut total - if we hit > 9000, we can stop
+						depositTXData[address].txETHOut = ethers.toBeHex(BigInt(ethers.toBeHex(tx.value)) + BigInt(depositTXData[address].txETHOut));
+					} else { // collect tx where FROM is deposit address and tx.value == 0 and add +1 to numNonETHTXs - if we hit > 100, we can stop
+						depositTXData[address].numNonETHTXs++;
+					}
+					if (depositTXData[address].numNonETHTXs > 100 || ethers.toBigInt(depositTXData[address].txETHOut) > ethers.parseEther('9000')) { depositTXData[address].isSolo = false; return true; }
+				}
+				let lastBlock = parseInt(response.result[response.result.length - 1].blockNumber, 10);
+				page += 1;
+				if (page > 10) { // etherscan won't let you pull more than 10k records across pages from their DB
+					page = 1; // so we reset the page
+					startBlock = lastBlock; // and update the range
+				}
+				await getTXs(page, action, address);
+			}
+		} else if (response.message && response.message === 'NOTOK') {
+			console.log(response);
+			console.log('Backing off Etherscan for', BACKOFFSECONDS, 'seconds...');
+			wait(BACKOFFSECONDS);
+			await getTXs(page, action, address);
+		} else if (response.message && response.message === 'No transactions found') { // we 're done
 			return true;
-		} else { // process transactions
-			for (let i = 0; i < response.result.length; i++) { // process this batch of transactions
-				if (depositTXData[address].numNonETHTXs > 100 || ethers.toBigInt(depositTXData[address].txETHOut) > ethers.parseEther('9000')) { depositTXData[address].isSolo = false; return true; }
-				const tx = response.result[i];
-				// if firstTXTimestamp is 0, change it to tx.timeStamp
-				if (tx.from.toLowerCase() !== address.toLowerCase()) { continue; }
-				if (depositTXData[address].firstTXTimestamp == 0) {
-					depositTXData[address].firstTXTimestamp = tx.timeStamp;
-				}
-				if (tx.value > 0) { // collect tx where FROM is deposit address and tx.value > 0 and add value to txETHOut total - if we hit > 9000, we can stop
-					depositTXData[address].txETHOut = ethers.toBeHex(BigInt(ethers.toBeHex(tx.value)) + BigInt(depositTXData[address].txETHOut));
-				} else { // collect tx where FROM is deposit address and tx.value == 0 and add +1 to numNonETHTXs - if we hit > 100, we can stop
-					depositTXData[address].numNonETHTXs++;
-				}
-				if (depositTXData[address].numNonETHTXs > 100 || ethers.toBigInt(depositTXData[address].txETHOut) > ethers.parseEther('9000')) { depositTXData[address].isSolo = false; return true; }
-			}
-			let lastBlock = parseInt(response.result[response.result.length - 1].blockNumber, 10);
-			page += 1;
-			if (page > 10) { // etherscan won't let you pull more than 10k records across pages from their DB
-				page = 1; // so we reset the page
-				startBlock = lastBlock; // and update the range
-			}
+		} else {
+			console.log(response);
+			console.log('Backing off Etherscan for', BACKOFFSECONDS, 'seconds...');
+			wait(BACKOFFSECONDS);
 			await getTXs(page, action, address);
 		}
-	} else if (response.message && response.message === 'NOTOK') {
-		console.log(response);
-		console.log('Backing off Etherscan for', BACKOFFSECONDS, 'seconds...');
-		wait(BACKOFFSECONDS);
-		await getTXs(page, action, address);
-	} else if (response.message && response.message === 'No transactions found') { // we 're done
-		return true;
-	} else {
-		console.log(response);
-		console.log('Backing off Etherscan for', BACKOFFSECONDS, 'seconds...');
-		wait(BACKOFFSECONDS);
+	} catch (e) {
+		console.log(e);
 		await getTXs(page, action, address);
 	}
 	return true;
