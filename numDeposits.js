@@ -13,9 +13,10 @@ if (process.argv[2] === '--reset') { sql = 'DROP TABLE IF EXISTS depositTransact
 sql += `
 CREATE TABLE IF NOT EXISTS depositTransactions (
 	deposit_address TEXT NOT NULL,
-	firstTXTimestamp INTEGER NULL,
-	addressAge INTEGER NULL,
-	numTXs INTEGER DEFAULT 0
+	firstTXTimestamp INTEGER DEFAULT 0,
+	txETHOut TEXT,
+	numTXs INTEGER DEFAULT 0,
+	numNonETHTXs INTEGER DEFAULT 0
 );`;
 DB.exec(sql, (err) => {
 	if (err) { throw new Error(err.message); }
