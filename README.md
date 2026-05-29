@@ -44,16 +44,20 @@ make sure `index.sh` is set to executable (`chmod +x index.sh`)
 
 This will add about 500megs worth of indexes to the database, but enables extremely fast queries.
 
-7. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`, letting us easily determine active/inactive deposit addresses. Optionally, `node queries.js --reset` to make a "first run" pass if steps beyond this have already been run.
+7. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`, letting us easily determine active/inactive deposit addresses. Optionally, `node queries.js --reset` to make a "first run" pass if steps beyond this have already been run. This process provides a `reason` field for any `deposit_addresses` marked non-solo.
 
-8. `node numDeposits.js` builds a new table, `depositTransactions` for storing some analytical data. This script uses the EL RPC node configured in `.env` to pull the number of lifetime transactions for a given deposit address and store in our database. Optionally, run `node numDeposits.js --reset` to wipe the data and rebuild. This process takes about 30 minutes using a local RPC node.
+8. `node numDeposits.js` builds a new table, `depositTransactions` for storing some analytical data. This script uses the EL RPC node configured in `.env` to pull the number of lifetime transactions for a given deposit address and store in our database. Optionally, run `node numDeposits.js --reset` to wipe the data and rebuild[^4]. This process takes about 30 minutes using a local RPC node and only looks at active, possibly solo, deposit addresses.
 
-9. `node queries.js` (run \#2) - build a patched JSON lookup object (with `deposit_address` as the primary key) with new transaction-related data, and write to disk as `deposits.json`
+9. `node queries.js` (run \#2) - build a patched JSON lookup object (with `deposit_address` as the primary key) with new transaction-related data, and write to disk as `deposits.json`. This run further prunes the list of "active" and "solo" stakers to process and provides a `reason` field.
 
 10. `node transactions.js` - retrieve transaction data from Etherscan to populate the `depositTransactions` table with first transaction date, amount of ETH sent, and number of non-ETH transactions. Unfortunately due to Etherscan nonsense, this takes days to run.
+
+11. `node queries.js` (run \#3) - build a patched JSON lookup object (with `deposit_address` as the primary key) with new transaction-related data, and write to disk as `deposits.json`. This run further prunes the list of "active" and "solo" stakers and provides a `reason` field.
 
 [^1]: Etherscan has already indexed the blockchain so we don't have to process block-by-block, looking at every transaction within every block. We can use their `txlist` endpoint combined with `page` and `startblock` params to page through and reliably retrieve all data. The free API tier is sufficient to retrieve all deposits, though there is a strict rate limit of three calls per second. The code has built-in back-off logic.
 
 [^2]: New RPC endpoint currently only available in our custom fork.
 
 [^3]: The frequency of update is arbitrary, based on the latest run/analysis of this repo. This file is provided as a starting point for your own analysis, saving many days worth of data retrieval.
+
+[^4]: Be extremely careful doing this. While the run of `numDeposits` only takes about 30 minutes, other data in the `depositTransactions` table can take upwards of 24hrs to populate (via `transactions.js`).

@@ -5,18 +5,20 @@ import Database from 'better-sqlite3';
 import cliProgress from 'cli-progress';
 import { ethers } from "ethers";
 
-const DB = new Database(process.env.DATABASE);
+const DB = new Database(process.env.DATABASE, { readonly: true });
 DB.pragma('journal_mode = WAL');
 
 // determine if depositTransactions table has any data in it, because it might not yet
 const depositTransactionsLength = DB.prepare("SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type='table' AND name='depositTransactions')").pluck().all();
 let depositAddresses;
 if (process.argv[2] === '--reset' || !depositTransactionsLength || depositTransactionsLength == 0) {
-	depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress, 'numTXs' = 0 FROM deposits").all();
+	depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress, 'numTXs' = 0, 'numNonETHTXs' = 0, 'txETHOut' = 0 FROM deposits").all();
 	console.log('numTXs set to 0 for deposits.');
+	console.log('numNonETHTXs set to 0 for deposits.');
+	console.log('txETHOut set to 0 for deposits.');
 	console.log('Unique deposit addresses:', depositAddresses.length);
 } else {
-	depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress, numTXs FROM deposits, depositTransactions WHERE deposits.deposit_address = depositTransactions.deposit_address").all();
+	depositAddresses = DB.prepare("SELECT DISTINCT(deposits.deposit_address) AS depositAddress, numTXs, numNonETHTXs, txETHOut FROM deposits, depositTransactions WHERE deposits.deposit_address = depositTransactions.deposit_address").all();
 	console.log('Unique active deposit addresses:', depositAddresses.length);
 }
 // depositAddresses = [ { depositAddress: process.env.TESTDEPOSITADDRESS.toLowerCase() } ];
@@ -85,7 +87,8 @@ for (let i = 0; i < depositAddresses.length; i++) {
 							const regex = new RegExp(graffitiExclusion, "gi");
 							if (decodedGraffiti.toLowerCase().match(regex)) {
 								depositAddressData.isSolo = false; // graffiti matches our known exclusion list, not a solo staker
-								depositAddressData.matchedGraffiti = graffitiExclusion;
+								if (!depositAddressData.reason) { depositAddressData.reason = []; }
+								depositAddressData.reason.push('matchedGraffiti (' + graffitiExclusion + ')');
 								return
 							}
 						});
@@ -94,24 +97,47 @@ for (let i = 0; i < depositAddresses.length; i++) {
 			}
 		}
 		// if effective staked balance is > 2560, not a solo staker
-		if (depositAddressData.balance && ( parseInt(ethers.formatUnits(depositAddressData.balance, "gwei"), 10) > 2560) ) { depositAddressData.isSolo = false; }
+		if (depositAddressData.balance && ( parseInt(ethers.formatUnits(depositAddressData.balance, "gwei"), 10) > 2560) ) {
+			depositAddressData.isSolo = false;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			depositAddressData.reason.push('balance');
+		}
 
 		// explicit inclusions or exclusions
 		if (inclusions.includes(depositAddress)) { depositAddressData.isSolo = true; }
-		if (exclusions.includes(depositAddress)) { depositAddressData.isSolo = false; }
+		if (exclusions.includes(depositAddress)) {
+			depositAddressData.isSolo = false;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			depositAddressData.reason.push('explicitExclusion');
+		}
 
 		// set the inactive flag to true for this deposit address to prevent further unnecessary processing
 		if (!depositAddressData.numValidators || !depositAddressData.balance || !depositAddressData.status || !depositAddressData.status.includes('active_ongoing')) {
 			depositAddressData.inactive = true; 
 		}
-	} else { // second-run processing
+	} else { // second and third-run processing
 		depositAddressData = depositData[depositAddress];
-		depositAddressData.numTXs = depositAddresses[i].numTXs;
 		// if numTXs > 10,000, not a solo staker
-		if (depositAddressData.numTXs >= 10000) { depositAddressData.isSolo = false; }
-
+		depositAddressData.numTXs = depositAddresses[i].numTXs;
+		if (depositAddressData.numTXs >= 10000) {
+			depositAddressData.isSolo = false;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			depositAddressData.reason.push('numTXs');
+		}
 		// if number of 0 ETH outgoing transactions > 100, not a solo staker
+		depositAddressData.numNonETHTXs = depositAddresses[i].numNonETHTXs;
+		if (depositAddressData.numNonETHTXs > 100) {
+			depositAddressData.isSolo = false;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			depositAddressData.reason.push('numNonETHTXs');
+		}
 		// if amount of ETH in outgoing transactions > 9,000, not a solo staker
+		depositAddressData.txETHOut = depositAddresses[i].txETHOut;
+		if (ethers.toBigInt(depositAddressData.txETHOut ? depositAddressData.txETHOut : 0) > ethers.parseEther('9000')) {
+			depositAddressData.isSolo = false;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			depositAddressData.reason.push('txETHOut');
+		}
 	}
 
 	depositData[depositAddress] = depositAddressData;

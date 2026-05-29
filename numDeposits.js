@@ -40,7 +40,7 @@ const depositAddressesOriginal = Object.keys(depositData);
 let depositAddresses = [];
 for (let i = 0; i < depositAddressesOriginal.length; i++) {
 	const thisDepositAddress = depositData[depositAddressesOriginal[i]];
-	if (thisDepositAddress.inactive) { continue; }
+	if (thisDepositAddress.inactive || !depositAddressData.isSolo) { continue; }
 	depositAddresses.push(depositAddressesOriginal[i]);
 }
 console.log('Unique active deposit addresses:', depositAddresses.length);
