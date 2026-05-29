@@ -104,7 +104,13 @@ for (let i = 0; i < depositAddresses.length; i++) {
 		}
 
 		// explicit inclusions or exclusions
-		if (inclusions.includes(depositAddress)) { depositAddressData.isSolo = true; }
+		if (inclusions.includes(depositAddress)) {
+			depositAddressData.isSolo = true;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			if (!depositAddressData.reason.includes('explicitInclusion')) {
+				depositAddressData.reason.push('explicitInclusion');
+			}
+		}
 		if (exclusions.includes(depositAddress)) {
 			depositAddressData.isSolo = false;
 			if (!depositAddressData.reason) { depositAddressData.reason = []; }
@@ -137,6 +143,13 @@ for (let i = 0; i < depositAddresses.length; i++) {
 			depositAddressData.isSolo = false;
 			if (!depositAddressData.reason) { depositAddressData.reason = []; }
 			depositAddressData.reason.push('txETHOut');
+		}
+		if (inclusions.includes(depositAddress)) {
+			depositAddressData.isSolo = true;
+			if (!depositAddressData.reason) { depositAddressData.reason = []; }
+			if (!depositAddressData.reason.includes('explicitInclusion')) {
+				depositAddressData.reason.push('explicitInclusion');
+			}
 		}
 	}
 
