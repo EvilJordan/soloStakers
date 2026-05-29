@@ -21,7 +21,7 @@ let depositTXData = {};
  * @param {Number} seconds - number of second to pause
  * @returns {void}
  */
-const wait = (seconds) => {
+const wait = async (seconds) => {
 	const waitTill = new Date(new Date().getTime() + seconds * 1000);
 	while (waitTill > new Date()) {
 		// wait
@@ -38,7 +38,7 @@ const wait = (seconds) => {
  */
 const getTXs = async (page, action, address) => {
 	calls++;
-	if (calls > RATELIMIT - 1) { wait(1); calls = 0; }
+	if (calls > RATELIMIT - 1) { await wait(1); calls = 0; }
 	let params = '&startBlock=' + startBlock + '&endblock=' + ENDBLOCK;
 	const URL = 'https://api.etherscan.io/v2/api?chainid=1&module=account&action=' + action + '&address=' + address + params + '&page=' + page + '&offset=1000&sort=asc&apikey=' + ETHERSCANAPIKEY;
 	let request;
