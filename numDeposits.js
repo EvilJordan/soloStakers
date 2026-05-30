@@ -40,10 +40,22 @@ const depositAddressesOriginal = Object.keys(depositData);
 let depositAddresses = [];
 for (let i = 0; i < depositAddressesOriginal.length; i++) {
 	const thisDepositAddress = depositData[depositAddressesOriginal[i]];
-	if (thisDepositAddress.inactive || !depositAddressData.isSolo) { continue; }
+	if (thisDepositAddress.inactive || !thisDepositAddress.isSolo) { continue; }
 	depositAddresses.push(depositAddressesOriginal[i]);
 }
+
+// select all existing deposit_address in depositTransactions table
+let query = DB.prepare("SELECT GROUP_CONCAT(DISTINCT deposit_address) AS deposit_address FROM depositTransactions").all();
+const depositAddressesDB = query[0].deposit_address.split(",");
+query = null;
+
 console.log('Unique active deposit addresses:', depositAddresses.length);
+
+// if an address in our depositAddresses array DOES NOT EXIST in the depositTransactions table, insert it, otherwise, skip
+const difference = depositAddresses.filter(item => !depositAddressesDB.includes(item));
+depositAddresses = difference;
+
+console.log('Active deposit addresses to be inserted:', depositAddresses.length);
 let progressBar;
 progressBar = new cliProgress.SingleBar({ format: 'Retrieving info: [{bar}] {percentage}% || {value}/{total} deposit addresses || ETA: {eta}s' }, cliProgress.Presets.rect);
 progressBar.start(depositAddresses.length, 0);
