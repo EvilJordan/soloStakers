@@ -13,6 +13,9 @@ let progressBar;
 
 const DB = new Database(process.env.DATABASE);
 DB.pragma('journal_mode = WAL');
+if (process.argv[2] === '--reset') {
+	DB.prepare("UPDATE depositTransactions SET firstTXTimestamp = 0").run();
+}
 const depositAddresses = DB.prepare("SELECT DISTINCT(deposit_address) AS depositAddress FROM depositTransactions WHERE firstTXTimestamp = 0").all();
 let depositTXData = {};
 
