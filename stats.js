@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: './.env', quiet: true });
-import Database from 'better-sqlite3';
 import { ethers } from "ethers";
 import fs from 'fs';
 const depositData = JSON.parse(fs.readFileSync('./deposits.json', 'utf8'));
@@ -38,23 +37,6 @@ if (process.argv[2] === '--save') {
 	fs.writeFileSync('./soloAddresses.json', JSON.stringify(soloAddresses, null, '\t'));
 }
 
-/*
-const DB = new Database(process.env.DATABASE, { readonly: true });
-DB.pragma('journal_mode = WAL');
-const depositAddressesDB = DB.prepare("SELECT * FROM depositTransactions WHERE firstTXTimestamp > 0").all();
-
-let numSoloDepositAddressesDB = 0;
-let numNonSoloDepositAddressesDB = 0;
-for (let i = 0; i < depositAddressesDB.length; i++) {
-	const thisDepositAddress = depositAddressesDB[i];
-	if (thisDepositAddress.numNonETHTXs > 100 || ethers.toBigInt(thisDepositAddress.txETHOut) > ethers.parseEther('9000')) {
-		numNonSoloDepositAddressesDB++;
-		continue;
-	}
-	numSoloDepositAddressesDB++;
-}
-*/
-
 console.log('deposits.json file data:');
 console.log('Total Deposit Addresses:', depositAddresses.length);
 console.log('Inactive Deposit Addresses:', inactive);
@@ -67,10 +49,3 @@ console.log('Inactive Validators:', totalInactiveValidators);
 console.log('Active Validators:', totalValidators - totalInactiveValidators);
 console.log('Solo Validators:', numSoloValidators, '(' + ((numSoloValidators / (totalValidators - totalInactiveValidators)) * 100).toFixed(2) + '%)');
 console.log('Non-Solo Validators:', numNonSoloValidators, '(' + ((numNonSoloValidators / (totalValidators - totalInactiveValidators)) * 100).toFixed(2) + '%)');
-/*
-console.log('-----');
-console.log('depositTransactions DB data:');
-console.log('Total Validators:', depositAddressesDB.length);
-console.log('Solo:', numSoloDepositAddressesDB);
-console.log('Non-Solo:', numNonSoloDepositAddressesDB, '(' + ((numNonSoloDepositAddressesDB / depositAddressesDB.length) * 100).toFixed(2) + '%)');
-*/
