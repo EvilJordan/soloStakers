@@ -54,4 +54,3 @@ console.log('Inactive Validators:', numInactiveValidators);
 console.log('Active Validators:', totalValidators - numInactiveValidators);
 console.log('Solo Validators:', numSoloValidators, '(' + ((numSoloValidators / (totalValidators - numInactiveValidators)) * 100).toFixed(2) + '%)');
 console.log('Non-Solo Validators:', numNonSoloValidators, '(' + ((numNonSoloValidators / (totalValidators - numInactiveValidators)) * 100).toFixed(2) + '%)');
-console.log('---');
