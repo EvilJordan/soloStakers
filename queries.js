@@ -121,6 +121,13 @@ for (let i = 0; i < depositAddresses.length; i++) {
 		if (!depositAddressData.numValidators || !depositAddressData.balance || !depositAddressData.status || !depositAddressData.status.includes('active_ongoing')) {
 			depositAddressData.inactive = true; 
 		}
+
+		// separate out active and non-active validators for more accurate reporting - do not rely on these numbers for validators that are completely inactive or active
+		if (depositAddressData.status?.length > 1 && depositAddressData.status?.includes('active_ongoing')) {
+			const activeValidatorQuery = DB.prepare('SELECT COUNT(status) AS activeValidators FROM validators WHERE vindex IN ('+ depositAddressData.vindex.join(',') + ') AND status = \'active_ongoing\'').pluck().all();
+			depositAddressData.numActiveValidators = activeValidatorQuery[0]; 
+			depositAddressData.numInactiveValidators = depositAddressData.numValidators - activeValidatorQuery[0];
+		}
 	} else { // second and third-run processing
 		depositAddressData = depositData[depositAddress];
 		// if numTXs > 10,000, not a solo staker
