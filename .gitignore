@@ -10,5 +10,4 @@ inclusions.json
 retrieveGraffiti.sh
 slotGraffiti.log
 soloAddresses.json
-stats.js
 node_modules/
