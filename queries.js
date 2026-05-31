@@ -61,7 +61,7 @@ for (let i = 0; i < depositAddresses.length; i++) {
 		// for each deposit_address, pull updated withdrawal_credentials from the latest validator set and add to our lookup object, along with other metadata
 		query = DB.prepare("SELECT GROUP_CONCAT(DISTINCT status) AS status, COUNT(status) AS numValidators, GROUP_CONCAT(DISTINCT vindex) AS vindices, SUM(balance) AS balance, withdrawal_credentials AS withdrawal_address FROM (SELECT DISTINCT(pubkey) AS pubkey1 FROM deposits WHERE deposit_address = '" + depositAddress + "'), validators WHERE pubkey1 = pubkey").all();
 		if (query[0].status?.length > 0) {
-			depositAddressData.status = query[0].status.split(","); // what if only some of the validators are active_ongoing?
+			depositAddressData.status = query[0].status.split(",");
 		}
 		depositAddressData.numValidators = query[0].numValidators;
 		depositAddressData.balance = query[0].balance;
@@ -127,6 +127,16 @@ for (let i = 0; i < depositAddresses.length; i++) {
 			const activeValidatorQuery = DB.prepare('SELECT COUNT(status) AS activeValidators FROM validators WHERE vindex IN ('+ depositAddressData.vindex.join(',') + ') AND status = \'active_ongoing\'').pluck().all();
 			depositAddressData.numActiveValidators = activeValidatorQuery[0]; 
 			depositAddressData.numInactiveValidators = depositAddressData.numValidators - activeValidatorQuery[0];
+		}
+
+		if (!depositAddressData.inactive && depositAddressData.status.length == 1) {
+			depositAddressData.numActiveValidators = depositAddressData.numValidators;
+			depositAddressData.numInactiveValidators = 0; 
+		}
+
+		if (depositAddressData.inactive && !depositAddressData.status) {
+			depositAddressData.numInactiveValidators = depositAddressData.numValidators;
+			depositAddressData.numActiveValidators = 0;
 		}
 	} else { // second and third-run processing
 		depositAddressData = depositData[depositAddress];
