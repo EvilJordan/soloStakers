@@ -46,7 +46,7 @@ for (let i = 0; i < depositAddressesOriginal.length; i++) {
 
 // select all existing deposit_address in depositTransactions table
 let query = DB.prepare("SELECT GROUP_CONCAT(DISTINCT deposit_address) AS deposit_address FROM depositTransactions").all();
-const depositAddressesDB = query[0].deposit_address.split(",");
+const depositAddressesDB = query[0].deposit_address ? query[0].deposit_address.split(",") : [];
 query = null;
 
 console.log('Unique active deposit addresses:', depositAddresses.length);
