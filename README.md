@@ -46,7 +46,7 @@ This will add about 500megs worth of indexes to the database, but enables extrem
 
 7. `node queries.js` - build a JSON lookup object (with `deposit_address` as the primary key), and write to disk as `deposits.json`, letting us easily determine active/inactive deposit addresses. Optionally, `node queries.js --reset` to make a "first run" pass if steps beyond this have already been run. This process provides a `reason` field for any `deposit_addresses` marked non-solo.
 
-8. `node numDeposits.js` builds a new table, `depositTransactions` for storing some analytical data. This script uses the EL RPC node configured in `.env` to pull the number of lifetime transactions for a given deposit address and store in our database. Optionally, run `node numDeposits.js --reset` to wipe the data and rebuild[^4]. This process takes about 30 minutes using a local RPC node and only looks at active, possibly solo, deposit addresses.
+8. `node numDeposits.js` builds a new table, `depositTransactions` for storing some analytical data. This script uses the EL RPC node configured in `.env` to pull the number of lifetime transactions for a given deposit address and store in our database. Optionally, run `node numDeposits.js --reset` to wipe the data and rebuild[^4]. This process takes about 30 minutes using a local RPC node and only looks at active, possibly solo, deposit addresses, however, by resetting, it will cause a later step `transactions`, to reset and take days.
 
 9. `node queries.js` (run \#2) - build a patched JSON lookup object (with `deposit_address` as the primary key) with new transaction-related data, and write to disk as `deposits.json`. This run further prunes the list of "active" and "solo" stakers to process and provides a `reason` field.
 
