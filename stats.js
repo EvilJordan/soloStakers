@@ -6,11 +6,15 @@ const depositData = JSON.parse(fs.readFileSync('./deposits.json', 'utf8'));
 
 let numSoloDepositAddresses = 0;
 let numNonSoloDepositAddresses = 0;
+let nonSoloDepositAddresses = [];
 let numSoloValidators = 0;
 let numNonSoloValidators = 0;
 let inactiveDepositAddresses = 0;
 let totalValidators = 0;
 let numInactiveValidators = 0;
+let numDepositAddresses32 = 0;
+let numDepositAddressesG32 = 0;
+let depositAddressesG32 = [];
 let soloAddresses = [];
 const depositAddresses = Object.keys(depositData);
 
@@ -30,13 +34,18 @@ for (let i = 0; i < depositAddresses.length; i++) {
 			numSoloValidators += thisDepositAddress.numValidators;
 		}
 		numSoloDepositAddresses++;
+		if (parseInt(ethers.formatUnits(thisDepositAddress.balance, "gwei"), 10) > 32) {
+			numDepositAddressesG32++;
+			depositAddressesG32.push(depositAddresses[i]);
+		} else { numDepositAddresses32++; }
 		if (process.argv[2] === '--save') { soloAddresses.push(depositAddresses[i]); }
-	}
-	else {
+	} else {
 		numNonSoloValidators += thisDepositAddress.numValidators;
-		numNonSoloDepositAddresses++;
+		numNonSoloDepositAddresses ++;
 	}
 }
+
+// const difference = depositAddressesG32.filter(item => !nonSoloDepositAddresses.includes(item));
 
 if (process.argv[2] === '--save') {
 	fs.writeFileSync('./soloAddresses.json', JSON.stringify(soloAddresses, null, '\t'));
@@ -54,3 +63,9 @@ console.log('Inactive Validators:', numInactiveValidators);
 console.log('Active Validators:', totalValidators - numInactiveValidators);
 console.log('Solo Validators:', numSoloValidators, '(' + ((numSoloValidators / (totalValidators - numInactiveValidators)) * 100).toFixed(2) + '%)');
 console.log('Non-Solo Validators:', numNonSoloValidators, '(' + ((numNonSoloValidators / (totalValidators - numInactiveValidators)) * 100).toFixed(2) + '%)');
+console.log('---');
+console.log('32 ETH Solo Deposit Addresses:', numDepositAddresses32, '(' + ((numDepositAddresses32 / (totalValidators - numInactiveValidators)) * 100).toFixed(2) + '%)');
+console.log('>32 ETH Solo Deposit Addresses:', numDepositAddressesG32, '(' + ((numDepositAddressesG32 / (totalValidators - numInactiveValidators)) * 100).toFixed(2) + '%)');
+// console.log('---');
+// console.log('Deposit Addresses with >32ETH that are considered Solo Stakers:', difference[0]);
+
