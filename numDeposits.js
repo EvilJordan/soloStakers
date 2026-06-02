@@ -9,7 +9,7 @@ const DB = new Database('soloStakers.db');
 DB.pragma('journal_mode = WAL');
 
 let sql = '';
-if (process.argv[2] === '--reset') { sql = 'DROP TABLE IF EXISTS depositTransactions;'; }
+if (process.argv[2] === '--reset') { sql = 'DROP TABLE IF EXISTS depositTransactions;'; } // this is dangerous as it will take >24hrs to repopulate when transactions.js is run
 sql += `
 CREATE TABLE IF NOT EXISTS depositTransactions (
 	deposit_address TEXT NOT NULL,
